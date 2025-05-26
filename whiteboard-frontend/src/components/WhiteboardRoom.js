@@ -5,7 +5,6 @@ import { io } from 'socket.io-client';
 import './WhiteboardRoom.css';
 
 // IMPORTANT: Make sure YOUR_PC_IP_ADDRESS is replaced with your actual PC's IP.
-// Example: const socket = io('http://192.168.1.100:5000');
 const socket = io('http://192.168.1.102:5000');
 
 // Helper component for selectable/transformable Konva nodes
@@ -19,11 +18,10 @@ const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange }) => {
       trRef.current.nodes([shapeRef.current]);
       trRef.current.getLayer().batchDraw();
     } else if (!isSelected && trRef.current) {
-      // If deselected, remove nodes from transformer
       trRef.current.nodes([]);
       trRef.current.getLayer().batchDraw();
     }
-  }, [isSelected, shapeProps.type]); // Add shapeProps.type as dependency to re-run on type change if needed
+  }, [isSelected, shapeProps.type]);
 
   // Handle double click for text editing or general selection behavior
   const handleDblClick = (e) => {
@@ -76,7 +74,7 @@ const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange }) => {
         textarea.style.textAlign = textNode.align();
         textarea.style.color = textNode.fill();
         textarea.style.transform = `rotateZ(${textNode.rotation()}deg)`;
-        textarea.style.zIndex = '9999'; // Ensure it's above other elements
+        textarea.style.zIndex = '9999';
 
         textarea.focus();
 
@@ -240,11 +238,10 @@ const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange }) => {
 function WhiteboardRoom() {
   const { roomName } = useParams();
   const navigate = useNavigate();
-  // UPDATED: 'lines' now holds all drawing objects
   const [drawingObjects, setDrawingObjects] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const stageRef = useRef(null);
-  const currentObjectId = useRef(null); // Renamed from currentLineId
+  const currentObjectId = useRef(null);
 
   const [chatMessages, setChatMessages] = useState([]);
   const [newChatMessage, setNewChatMessage] = useState('');
@@ -256,12 +253,11 @@ function WhiteboardRoom() {
   });
   const canvasContainerRef = useRef(null);
 
-  // UPDATED: Tool properties
-  const [tool, setTool] = useState('pen'); // 'pen', 'eraser', 'select', 'rect', 'circle', 'text'
-  const [strokeColor, setStrokeColor] = useState('#000000'); // Default black
-  const [strokeWidth, setStrokeWidth] = useState(5); // Default width
-  const [fillColor, setFillColor] = useState('transparent'); // For shapes
-  const [selectedId, selectShape] = useState(null); // For selection tool
+  const [tool, setTool] = useState('pen');
+  const [strokeColor, setStrokeColor] = useState('#000000');
+  const [strokeWidth, setStrokeWidth] = useState(5);
+  const [fillColor, setFillColor] = useState('transparent');
+  const [selectedId, selectShape] = useState(null);
 
   // --- Socket.IO Event Listeners & Room Joining ---
   useEffect(() => {
@@ -282,19 +278,16 @@ function WhiteboardRoom() {
       navigate('/');
     });
 
-    // UPDATED: Receive an object with drawingObjects (formerly lines) and messages
     socket.on('whiteboardState', (data) => {
       console.log('Received initial room state:', data);
-      setDrawingObjects(data.lines); // 'lines' field in data now contains all objects
+      setDrawingObjects(data.lines);
       setChatMessages(data.messages);
     });
 
-    // UPDATED: Listen for generic drawingStarted events
     socket.on('drawingStarted', (newObject) => {
         setDrawingObjects((prevObjects) => [...prevObjects, newObject]);
     });
 
-    // UPDATED: Listen for drawing events (only for lines)
     socket.on('drawing', (data) => {
         const { objectId, newPoints } = data;
         setDrawingObjects((prevObjects) => {
@@ -307,7 +300,6 @@ function WhiteboardRoom() {
         });
     });
 
-    // UPDATED: Listen for drawingFinished events
     socket.on('drawingFinished', (data) => {
         const { objectId, finalObjectState } = data;
         setDrawingObjects((prevObjects) => {
@@ -320,7 +312,6 @@ function WhiteboardRoom() {
         });
     });
 
-    // NEW: Listen for object updates (move, resize, edit text)
     socket.on('objectUpdated', (data) => {
         const { objectId, newAttributes } = data;
         setDrawingObjects((prevObjects) => {
@@ -333,13 +324,11 @@ function WhiteboardRoom() {
         });
     });
 
-    // NEW: Listen for whiteboard cleared event
     socket.on('whiteboardCleared', () => {
-        setDrawingObjects([]); // Clear all objects locally
-        selectShape(null); // Deselect any selected object
+        setDrawingObjects([]);
+        selectShape(null);
         console.log('Whiteboard cleared by another user.');
     });
-
 
     socket.on('chatMessage', (message) => {
         setChatMessages((prevMessages) => [...prevMessages, message]);
@@ -353,7 +342,14 @@ function WhiteboardRoom() {
         }]);
     });
 
-    // NEW: Resize observer to update Konva stage dimensions
+    // NEW: Listen for room destroyed event
+    socket.on('roomDestroyed', (destroyedRoomName) => {
+        if (destroyedRoomName === roomName) {
+            alert(`Room "${destroyedRoomName}" has been closed or automatically destroyed.`);
+            navigate('/'); // Redirect to lobby
+        }
+    });
+
     const handleResize = () => {
       if (canvasContainerRef.current) {
         const { clientWidth, clientHeight } = canvasContainerRef.current;
@@ -362,11 +358,10 @@ function WhiteboardRoom() {
     };
 
     window.addEventListener('resize', handleResize);
-    // Initial dimensions when component mounts
     handleResize();
 
     return () => {
-      window.removeEventListener('resize', handleResize); // Clean up resize listener
+      window.removeEventListener('resize', handleResize);
       socket.off('connect');
       socket.off('disconnect');
       socket.off('whiteboardState');
@@ -377,6 +372,7 @@ function WhiteboardRoom() {
       socket.off('whiteboardCleared');
       socket.off('chatMessage');
       socket.off('userJoined');
+      socket.off('roomDestroyed'); // Clean up roomDestroyed listener
     };
   }, [roomName, navigate]);
 
@@ -384,7 +380,6 @@ function WhiteboardRoom() {
     chatMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  // Function to handle changes to drawing objects (for Konva Transformer)
   const handleObjectChange = (updatedObject) => {
     setDrawingObjects((prevObjects) => {
       return prevObjects.map((obj) => {
@@ -394,18 +389,15 @@ function WhiteboardRoom() {
         return obj;
       });
     });
-    // Emit update to backend only for changes (x,y,width,height,rotation,text etc.)
     socket.emit('updateObject', { roomName, objectId: updatedObject.id, newAttributes: updatedObject });
   };
 
 
-  // --- Drawing Logic (UPDATED for various tools) ---
   const handleMouseDown = (e) => {
-    // Deselect if clicking on empty space and tool is 'select'
     const clickedOnEmpty = e.target === e.target.getStage();
     if (tool === 'select' && clickedOnEmpty) {
-      selectShape(null);
-      return; // No drawing for select tool
+      selectShape(null); // Deselect if clicking empty space with select tool
+      return;
     }
 
     if (e.evt.type === 'touchstart') {
@@ -423,11 +415,11 @@ function WhiteboardRoom() {
       case 'eraser':
         newObject = {
           id: newObjectId,
-          type: 'line', // Always 'line' for pen/eraser
+          type: 'line',
           points: [pos.x, pos.y],
-          stroke: tool === 'eraser' ? '#FFFFFF' : strokeColor, // Eraser color is whiteboard background
-          strokeWidth: tool === 'eraser' ? strokeWidth + 10 : strokeWidth, // Eraser slightly wider
-          tool: tool // Keep tool property for eraser's composite operation (Konva only)
+          stroke: tool === 'eraser' ? '#FFFFFF' : strokeColor,
+          strokeWidth: tool === 'eraser' ? strokeWidth + 10 : strokeWidth,
+          tool: tool
         };
         break;
       case 'rect':
@@ -436,7 +428,7 @@ function WhiteboardRoom() {
           type: 'rect',
           x: pos.x,
           y: pos.y,
-          width: 0, height: 0, // Will be updated on mouse move
+          width: 0, height: 0,
           stroke: strokeColor,
           strokeWidth: strokeWidth,
           fill: fillColor,
@@ -448,13 +440,13 @@ function WhiteboardRoom() {
           type: 'circle',
           x: pos.x,
           y: pos.y,
-          radius: 0, // Will be updated on mouse move
+          radius: 0,
           stroke: strokeColor,
           strokeWidth: strokeWidth,
           fill: fillColor,
         };
         break;
-      case 'text': // For text, we'll create a default text box on click
+      case 'text':
         newObject = {
           id: newObjectId,
           type: 'text',
@@ -463,23 +455,22 @@ function WhiteboardRoom() {
           text: 'Double click to edit',
           fontSize: 20,
           fontFamily: 'Arial',
-          stroke: strokeColor, // Border for text (optional)
-          fill: strokeColor, // Text color is fill property for Konva Text
-          width: 200, // Default width for wrapping
-          height: 30, // Default height, will expand with text
+          stroke: strokeColor,
+          fill: strokeColor,
+          width: 200,
+          height: 30,
           rotation: 0
         };
-        setIsDrawing(false); // Text is not "drawn" by dragging, it's placed
+        setIsDrawing(false);
         socket.emit('startDrawing', { roomName, object: newObject });
         setDrawingObjects((prevObjects) => [...prevObjects, newObject]);
-        selectShape(newObjectId); // Select the new text object for immediate editing/moving
-        return; // Exit early for text tool as it's not a drag-and-draw
+        selectShape(newObjectId);
+        return;
       case 'select':
-        // Selection handled by ColoredRect's onClick
         setIsDrawing(false);
         return;
       default:
-        return; // No action for unknown tools
+        return;
     }
 
     setDrawingObjects((prevObjects) => [...prevObjects, newObject]);
@@ -509,54 +500,53 @@ function WhiteboardRoom() {
           socket.emit('drawing', { roomName, objectId: currentObjectId.current, newPoints: [point.x, point.y] });
           break;
         case 'rect':
-          // Calculate width/height from initial click (x,y) to current pointer (point.x, point.y)
-          // Handle drawing from right-to-left or bottom-to-top
-          const newX = Math.min(currentObject.x, point.x);
-          const newY = Math.min(currentObject.y, point.y);
-          const newWidth = Math.abs(point.x - currentObject.x);
-          const newHeight = Math.abs(point.y - currentObject.y);
+          const newX_rect = Math.min(currentObject.x, point.x);
+          const newY_rect = Math.min(currentObject.y, point.y);
+          const newWidth_rect = Math.abs(point.x - currentObject.x);
+          const newHeight_rect = Math.abs(point.y - currentObject.y);
 
           currentObject = {
               ...currentObject,
-              x: newX,
-              y: newY,
-              width: newWidth,
-              height: newHeight
+              x: newX_rect,
+              y: newY_rect,
+              width: newWidth_rect,
+              height: newHeight_rect
           };
           newObjects[index] = currentObject;
           setDrawingObjects(newObjects);
           socket.emit('updateObject', { roomName, objectId: currentObjectId.current, newAttributes: {
-              x: newX, y: newY, width: newWidth, height: newHeight
+              x: newX_rect, y: newY_rect, width: newWidth_rect, height: newHeight_rect
           }});
           break;
         case 'circle':
-          // Calculate radius based on distance from initial click to current pointer
-          currentObject.radius = Math.sqrt(
+          const newRadius_circle = Math.sqrt(
             Math.pow(point.x - currentObject.x, 2) + Math.pow(point.y - currentObject.y, 2)
           );
+          currentObject = {
+              ...currentObject,
+              radius: newRadius_circle
+          };
           newObjects[index] = currentObject;
           setDrawingObjects(newObjects);
           socket.emit('updateObject', { roomName, objectId: currentObjectId.current, newAttributes: {
-              radius: currentObject.radius
+              radius: newRadius_circle
           }});
           break;
         default:
-          break; // Do nothing for other types during mousemove
+          break;
       }
     }
   };
 
   const handleMouseUp = () => {
     setIsDrawing(false);
-    // Only emit endDrawing if it was an actual drawing tool (not text or select)
     if (tool !== 'select' && tool !== 'text') {
       const finalObject = drawingObjects.find(obj => obj.id === currentObjectId.current);
       if (finalObject) {
-          // Ensure final object state reflects the tool used for drawing (e.g., eraser's width)
           socket.emit('endDrawing', { roomName, objectId: currentObjectId.current, finalObjectState: finalObject });
       }
     }
-    currentObjectId.current = null; // Clear the current object ID
+    currentObjectId.current = null;
   };
 
   const handleSendChatMessage = () => {
@@ -578,7 +568,17 @@ function WhiteboardRoom() {
     }
   };
 
-  // Determine cursor based on active tool
+  // NEW: Handle manual room closure
+  const handleCloseRoom = () => {
+    if (window.confirm('Are you sure you want to close this room? All users will be disconnected and data will be deleted.')) {
+      socket.emit('closeRoom', roomName);
+      // Backend will handle disconnecting users and redirecting them
+      // For the current user, we can immediately navigate to lobby
+      navigate('/');
+      alert('Room closure initiated.');
+    }
+  };
+
   const getCursorStyle = () => {
     switch (tool) {
       case 'pen':
@@ -589,7 +589,7 @@ function WhiteboardRoom() {
       case 'text':
         return 'text';
       case 'select':
-        return selectedId ? 'move' : 'default'; // Cursor changes when hovering over selected object
+        return selectedId ? 'move' : 'default';
       default:
         return 'default';
     }
@@ -628,7 +628,7 @@ function WhiteboardRoom() {
           >
             🧽 Eraser
           </button>
-          <div className="tool-separator"></div> {/* Visual separator */}
+          <div className="tool-separator"></div>
           <button
             className={`tool-button ${tool === 'rect' ? 'active' : ''}`}
             onClick={() => setTool('rect')}
@@ -659,7 +659,7 @@ function WhiteboardRoom() {
             value={strokeColor}
             onChange={(e) => {
                 setStrokeColor(e.target.value);
-                if (tool !== 'eraser') setTool('pen'); // Auto switch to pen if not eraser
+                if (tool !== 'eraser') setTool('pen');
             }}
             title="Stroke Color"
           />
@@ -669,9 +669,8 @@ function WhiteboardRoom() {
             value={fillColor}
             onChange={(e) => {
                 setFillColor(e.target.value);
-                // Auto switch to a shape tool if changing fill, but not if current tool is line/eraser
                 if (tool === 'pen' || tool === 'eraser') {
-                    setTool('rect'); // Default to rect if pen/eraser is active
+                    setTool('rect');
                 }
             }}
             title="Fill Color"
@@ -693,6 +692,10 @@ function WhiteboardRoom() {
           <button className="tool-button" onClick={handleClearWhiteboard} title="Clear All">
             🗑️ Clear All
           </button>
+          {/* NEW: Close Room Button */}
+          <button className="tool-button danger-button" onClick={handleCloseRoom} title="Close & Delete Room">
+            ❌ Close Room
+          </button>
         </div>
 
         <div className="whiteboard-canvas-container" ref={canvasContainerRef}>
@@ -707,14 +710,13 @@ function WhiteboardRoom() {
             onTouchEnd={handleMouseUp}
             ref={stageRef}
             style={{
-                cursor: getCursorStyle(), // Dynamic cursor based on tool
+                cursor: getCursorStyle(),
                 backgroundColor: 'white',
                 touchAction: 'none'
             }}
           >
             <Layer>
-              {drawingObjects.map((obj, i) => {
-                // Render different Konva components based on object type
+              {drawingObjects.map((obj) => {
                 if (obj.type === 'line') {
                   return (
                     <Line
@@ -738,7 +740,7 @@ function WhiteboardRoom() {
                       isSelected={obj.id === selectedId}
                       onSelect={() => {
                         selectShape(obj.id);
-                        setTool('select'); // Automatically switch to select tool when an object is clicked
+                        setTool('select');
                       }}
                       onChange={handleObjectChange}
                     />

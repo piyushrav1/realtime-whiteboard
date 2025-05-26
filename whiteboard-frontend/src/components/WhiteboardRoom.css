@@ -57,7 +57,7 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* UPDATED: Tool Palette Styles */
+/* Tool Palette Styles */
 .tool-palette {
   display: flex;
   flex-wrap: wrap;
@@ -80,7 +80,7 @@
   font-size: 1em;
   border-radius: var(--border-radius-md);
   box-shadow: none;
-  min-width: 80px; /* Ensure buttons have consistent width */
+  min-width: 80px;
   text-align: center;
 }
 
@@ -95,6 +95,16 @@
   transform: translateY(-1px);
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+
+/* NEW: Style for the "Close Room" button to make it red */
+.tool-button.danger-button {
+  background-color: var(--danger-color);
+}
+
+.tool-button.danger-button:hover {
+  background-color: var(--danger-hover-color);
+}
+
 
 .tool-separator {
   width: 1px;
@@ -177,11 +187,10 @@
   flex-shrink: 0;
 }
 
-
 /* Canvas container */
 .whiteboard-canvas-container {
   width: 100%;
-  height: calc(100vh - 200px - 100px); /* Adjusted height to account for header + tool palette */
+  height: calc(100vh - 200px - 100px);
   background-color: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
@@ -317,7 +326,7 @@
   .whiteboard-canvas-container {
     height: 500px;
     width: 100%;
-    height: calc(100vh - 200px - 80px); /* Adjusted canvas height for tool palette */
+    height: calc(100vh - 200px - 80px);
   }
 
   .chat-sidebar {
@@ -363,7 +372,7 @@
   .tool-button {
     padding: 6px 10px;
     font-size: 0.9em;
-    min-width: unset; /* Allow shrinking on very small screens */
+    min-width: unset;
   }
 
   .color-picker {
