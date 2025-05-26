@@ -6,54 +6,62 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
-  font-family: Arial, sans-serif;
-  color: #333;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .lobby-container h1 {
-  font-size: 2.5em;
-  margin-bottom: 30px;
-  color: #0056b3;
+  font-size: 2.8em;
+  margin-bottom: 40px;
+  color: var(--primary-color);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .room-input-group {
+  background-color: var(--card-background);
+  padding: 30px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-medium);
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  width: 100%;
+  max-width: 400px; /* Limit width on larger screens */
 }
 
 .room-input {
-  padding: 12px 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  width: 100%; /* Fill parent width */
   font-size: 1.1em;
-  width: 300px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.room-input:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
 .join-button {
-  padding: 12px 25px;
-  background-color: #007bff;
+  background-color: var(--primary-color);
   color: white;
-  border: none;
-  border-radius: 8px;
+  width: 100%; /* Fill parent width */
   font-size: 1.1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .join-button:hover {
-  background-color: #0056b3;
+  background-color: var(--primary-hover-color);
 }
 
 .hint-text {
   font-size: 0.9em;
-  color: #666;
+  color: var(--secondary-color);
+  margin-top: 25px;
+}
+
+/* Responsive adjustments for Lobby */
+@media (max-width: 480px) {
+  .lobby-container h1 {
+    font-size: 2em;
+    margin-bottom: 25px;
+  }
+  .room-input-group {
+    padding: 20px;
+  }
+  .room-input, .join-button {
+    font-size: 1em;
+  }
 }

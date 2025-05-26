@@ -2,26 +2,38 @@
 
 const mongoose = require('mongoose');
 
-// Define a schema for a single line object
+// Define a schema for a single line object (existing)
 const LineSchema = new mongoose.Schema({
-  id: { type: String, required: true }, // Client-side generated unique ID for the line
+  id: { type: String, required: true },
   tool: { type: String, required: true },
-  points: { type: [Number], required: true }, // Array of numbers: [x1, y1, x2, y2, ...]
+  points: { type: [Number], required: true },
   stroke: { type: String, default: 'black' },
   strokeWidth: { type: Number, default: 5 },
-  // Add other properties here as you add more tools (e.g., color, fill, shapeType)
-}, { _id: false }); // Don't create a separate _id for subdocuments (lines)
+}, { _id: false });
 
-// Define the main WhiteboardRoom schema
+// NEW: Define a schema for a single chat message
+const ChatMessageSchema = new mongoose.Schema({
+  userId: { type: String, required: true }, // Placeholder for user ID (e.g., socket.id for now)
+  username: { type: String, default: 'Guest' }, // Placeholder for username
+  message: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
+}, { _id: false }); // Don't create separate _id for subdocuments (messages)
+
+
+// Define the main WhiteboardRoom schema (updated)
 const WhiteboardRoomSchema = new mongoose.Schema({
   room_name: {
     type: String,
     required: true,
-    unique: true, // Ensure room names are unique
+    unique: true,
     trim: true,
   },
   whiteboard_state: {
     type: [LineSchema], // Array of line objects
+    default: [],
+  },
+  chat_messages: { // NEW: Array of chat message objects
+    type: [ChatMessageSchema],
     default: [],
   },
   createdAt: {
