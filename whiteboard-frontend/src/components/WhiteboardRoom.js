@@ -5,10 +5,11 @@ import { io } from 'socket.io-client';
 import './WhiteboardRoom.css';
 
 // IMPORTANT: Make sure YOUR_PC_IP_ADDRESS is replaced with your actual PC's IP.
+// Example: const socket = io('http://192.168.1.100:5000');
 const socket = io('http://192.168.1.102:5000');
 
 // Helper component for selectable/transformable Konva nodes
-const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange }) => {
+const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange, activeTool }) => { // <<< ADDED activeTool prop
   const shapeRef = useRef();
   const trRef = useRef(); // Ref for the Konva Transformer
 
@@ -18,10 +19,11 @@ const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange }) => {
       trRef.current.nodes([shapeRef.current]);
       trRef.current.getLayer().batchDraw();
     } else if (!isSelected && trRef.current) {
+      // If deselected, remove nodes from transformer
       trRef.current.nodes([]);
       trRef.current.getLayer().batchDraw();
     }
-  }, [isSelected, shapeProps.type]);
+  }, [isSelected, shapeProps.type]); // Add shapeProps.type as dependency to re-run on type change if needed
 
   // Handle double click for text editing or general selection behavior
   const handleDblClick = (e) => {
@@ -120,7 +122,7 @@ const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange }) => {
         onDblTap={handleDblClick}
         ref={shapeRef}
         {...shapeProps}
-        draggable
+        draggable={activeTool === 'select'} // <<< CONDITIONAL DRAGGABLE
         onDragEnd={(e) => {
           onChange({
             ...shapeProps,
@@ -155,7 +157,7 @@ const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange }) => {
         onDblTap={handleDblClick}
         ref={shapeRef}
         {...shapeProps}
-        draggable
+        draggable={activeTool === 'select'} // <<< CONDITIONAL DRAGGABLE
         onDragEnd={(e) => {
           onChange({
             ...shapeProps,
@@ -185,7 +187,7 @@ const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange }) => {
         onDblTap={handleDblClick}
         ref={shapeRef}
         {...shapeProps}
-        draggable
+        draggable={activeTool === 'select'} // <<< CONDITIONAL DRAGGABLE
         onDragEnd={(e) => {
           onChange({
             ...shapeProps,
@@ -196,9 +198,7 @@ const ColoredRect = ({ shapeProps, isSelected, onSelect, onChange }) => {
         onTransformEnd={(e) => {
           const node = shapeRef.current;
           const scaleX = node.scaleX();
-          // Text often scales font based on X scale for simplicity, keep Y for consistency
-          // This ensures font size scales with width
-          const scaleY = node.scaleY();
+          const scaleY = node.scaleY(); // Keep scaleY for potential future use or consistency
           node.scaleX(1);
           node.scaleY(1);
           onChange({
@@ -342,7 +342,6 @@ function WhiteboardRoom() {
         }]);
     });
 
-    // NEW: Listen for room destroyed event
     socket.on('roomDestroyed', (destroyedRoomName) => {
         if (destroyedRoomName === roomName) {
             alert(`Room "${destroyedRoomName}" has been closed or automatically destroyed.`);
@@ -372,7 +371,7 @@ function WhiteboardRoom() {
       socket.off('whiteboardCleared');
       socket.off('chatMessage');
       socket.off('userJoined');
-      socket.off('roomDestroyed'); // Clean up roomDestroyed listener
+      socket.off('roomDestroyed');
     };
   }, [roomName, navigate]);
 
@@ -568,17 +567,15 @@ function WhiteboardRoom() {
     }
   };
 
-  // NEW: Handle manual room closure
   const handleCloseRoom = () => {
     if (window.confirm('Are you sure you want to close this room? All users will be disconnected and data will be deleted.')) {
       socket.emit('closeRoom', roomName);
-      // Backend will handle disconnecting users and redirecting them
-      // For the current user, we can immediately navigate to lobby
       navigate('/');
       alert('Room closure initiated.');
     }
   };
 
+  // Determine cursor based on active tool
   const getCursorStyle = () => {
     switch (tool) {
       case 'pen':
@@ -589,7 +586,7 @@ function WhiteboardRoom() {
       case 'text':
         return 'text';
       case 'select':
-        return selectedId ? 'move' : 'default';
+        return selectedId ? 'move' : 'default'; // Cursor changes when hovering over selected object
       default:
         return 'default';
     }
@@ -692,7 +689,6 @@ function WhiteboardRoom() {
           <button className="tool-button" onClick={handleClearWhiteboard} title="Clear All">
             🗑️ Clear All
           </button>
-          {/* NEW: Close Room Button */}
           <button className="tool-button danger-button" onClick={handleCloseRoom} title="Close & Delete Room">
             ❌ Close Room
           </button>
@@ -743,6 +739,7 @@ function WhiteboardRoom() {
                         setTool('select');
                       }}
                       onChange={handleObjectChange}
+                      activeTool={tool} // <<< PASS THE CURRENT TOOL HERE
                     />
                   );
                 }
