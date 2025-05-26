@@ -1,0 +1,46 @@
+/* whiteboard-frontend/src/components/WhiteboardRoom.css */
+
+.whiteboard-room-container {
+  font-family: sans-serif;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%; /* Match whiteboard width */
+  margin: 0 auto 20px;
+}
+
+.header h1 {
+  color: #333;
+  margin: 0;
+  font-size: 1.8em;
+}
+
+.header .room-name {
+  color: #007bff;
+}
+
+.leave-button {
+  padding: 8px 15px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 0.9em;
+}
+
+.leave-button:hover {
+  background-color: #c82333;
+}
+
+.hint-text {
+  margin-top: 20px;
+  color: #666;
+}
+
