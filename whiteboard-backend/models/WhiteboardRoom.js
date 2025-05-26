@@ -2,25 +2,37 @@
 
 const mongoose = require('mongoose');
 
-// Define a schema for a single line object (existing)
-const LineSchema = new mongoose.Schema({
+// UPDATED: Define a generic schema for any drawing object
+const DrawingObjectSchema = new mongoose.Schema({
   id: { type: String, required: true },
-  tool: { type: String, required: true },
-  points: { type: [Number], required: true },
-  stroke: { type: String, default: 'black' },
-  strokeWidth: { type: Number, default: 5 },
+  type: { type: String, required: true, enum: ['line', 'rect', 'circle', 'text'] }, // NEW: Type of drawing object
+  x: { type: Number }, // For shapes, text, images
+  y: { type: Number }, // For shapes, text, images
+  width: { type: Number }, // For rect, text
+  height: { type: Number }, // For rect, text
+  radius: { type: Number }, // For circle
+  rotation: { type: Number, default: 0 }, // For all rotatable objects
+  text: { type: String }, // For text objects
+  fontSize: { type: Number }, // For text objects
+  fontFamily: { type: String }, // For text objects
+  align: { type: String }, // For text objects
+
+  points: { type: [Number] }, // Only for 'line' type
+  stroke: { type: String, default: 'black' }, // For line, rect, circle, text
+  strokeWidth: { type: Number, default: 5 }, // For line, rect, circle
+  fill: { type: String, default: 'transparent' }, // For rect, circle
+  // Add more properties as needed for other tools (e.g., opacity, dash, image source)
 }, { _id: false });
 
-// NEW: Define a schema for a single chat message
+// ChatMessageSchema (unchanged)
 const ChatMessageSchema = new mongoose.Schema({
-  userId: { type: String, required: true }, // Placeholder for user ID (e.g., socket.id for now)
-  username: { type: String, default: 'Guest' }, // Placeholder for username
+  userId: { type: String, required: true },
+  username: { type: String, default: 'Guest' },
   message: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
-}, { _id: false }); // Don't create separate _id for subdocuments (messages)
+}, { _id: false });
 
-
-// Define the main WhiteboardRoom schema (updated)
+// WhiteboardRoomSchema (updated to use DrawingObjectSchema)
 const WhiteboardRoomSchema = new mongoose.Schema({
   room_name: {
     type: String,
@@ -29,10 +41,10 @@ const WhiteboardRoomSchema = new mongoose.Schema({
     trim: true,
   },
   whiteboard_state: {
-    type: [LineSchema], // Array of line objects
+    type: [DrawingObjectSchema], // UPDATED: Array of generic drawing objects
     default: [],
   },
-  chat_messages: { // NEW: Array of chat message objects
+  chat_messages: {
     type: [ChatMessageSchema],
     default: [],
   },
@@ -46,11 +58,9 @@ const WhiteboardRoomSchema = new mongoose.Schema({
   },
 });
 
-// Update 'updatedAt' field on save
 WhiteboardRoomSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Create and export the model
 module.exports = mongoose.model('WhiteboardRoom', WhiteboardRoomSchema);

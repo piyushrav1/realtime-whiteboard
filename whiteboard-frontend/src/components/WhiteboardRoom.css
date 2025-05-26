@@ -2,23 +2,22 @@
 
 .whiteboard-page-container {
   display: flex;
-  flex-direction: row; /* Default for desktop */
+  flex-direction: row;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
   padding: 20px;
-  gap: 25px; /* Space between whiteboard and chat */
+  gap: 25px;
   box-sizing: border-box;
 }
 
 .whiteboard-main-content {
-  flex: 1; /* Allows whiteboard content to grow */
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* UPDATED: Corrected max-width calc based on chat-sidebar's 280px width */
-  max-width: calc(100% - 280px - 25px); /* Max width for whiteboard (100% - chat-width - gap) */
-  min-width: 320px; /* Minimum width before going to column layout */
+  max-width: calc(100% - 280px - 25px);
+  min-width: 320px;
 }
 
 .header {
@@ -58,9 +57,131 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+/* UPDATED: Tool Palette Styles */
+.tool-palette {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  padding: 15px 25px;
+  margin-bottom: 20px;
+  background-color: var(--card-background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-light);
+  box-sizing: border-box;
+}
+
+.tool-button {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 8px 15px;
+  font-size: 1em;
+  border-radius: var(--border-radius-md);
+  box-shadow: none;
+  min-width: 80px; /* Ensure buttons have consistent width */
+  text-align: center;
+}
+
+.tool-button.active {
+  background-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.tool-button:hover {
+  background-color: var(--primary-hover-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.tool-separator {
+  width: 1px;
+  height: 30px;
+  background-color: var(--border-color);
+  margin: 0 5px;
+  flex-shrink: 0;
+}
+
+.color-picker {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.color-picker::-webkit-color-swatch {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+}
+.color-picker::-moz-color-swatch,
+.color-picker::-moz-color-swatch-wrapper {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+}
+
+.stroke-width-slider {
+  width: 120px;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: var(--border-color);
+  outline: none;
+  opacity: 0.7;
+  transition: opacity .2s;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.stroke-width-slider:hover {
+  opacity: 1;
+}
+
+.stroke-width-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.stroke-width-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.stroke-width-display {
+  font-size: 0.9em;
+  color: var(--text-color);
+  min-width: 40px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+
+/* Canvas container */
 .whiteboard-canvas-container {
   width: 100%;
-  height: calc(100vh - 200px); /* Adjust based on header/footer/padding */
+  height: calc(100vh - 200px - 100px); /* Adjusted height to account for header + tool palette */
   background-color: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
@@ -68,9 +189,11 @@
   overflow: hidden;
 }
 
+/* Konva Stage styles (no changes needed) */
 .konvajs-content {
   border-radius: var(--border-radius-lg);
 }
+
 
 .hint-text {
   margin-top: 20px;
@@ -78,7 +201,7 @@
   font-size: 0.9em;
 }
 
-/* Chat Sidebar Styles */
+/* Chat Sidebar Styles (unchanged for now) */
 .chat-sidebar {
   width: 280px;
   min-width: 280px;
@@ -89,7 +212,7 @@
   flex-direction: column;
   padding: 20px;
   height: calc(100vh - 40px);
-  box-sizing: border-box; /* IMPORTANT: Ensures padding is included in the 280px width */
+  box-sizing: border-box;
 }
 
 .chat-sidebar h2 {
@@ -137,25 +260,21 @@
   display: flex;
   margin-top: auto;
   gap: 10px;
-  /* NEW: Allow flex items to wrap if necessary (though flex-direction: column will handle this on mobile) */
   flex-wrap: wrap;
 }
 
 .chat-input {
   flex-grow: 1;
-  /* NEW: Add min-width to prevent it from collapsing too much */
-  min-width: 100px; /* Or any suitable minimum width before wrapping */
+  min-width: 100px;
   font-size: 0.95em;
-  /* NEW: Ensures it doesn't take up all space and leave nothing for button */
-  flex-basis: auto; /* Allow content or flex-grow to determine size */
+  flex-basis: auto;
 }
 
 .send-button {
   background-color: var(--success-color);
   color: white;
-  padding: 10px 15px; /* ADJUSTED: Slightly reduced padding for better fit */
+  padding: 10px 15px;
   font-size: 0.95em;
-  /* NEW: Prevent button from shrinking */
   flex-shrink: 0;
 }
 
@@ -165,34 +284,50 @@
 
 /* --- Responsive Adjustments --- */
 
-/* For Tablets and smaller laptops (e.g., max-width 1024px) */
 @media (max-width: 1024px) {
   .whiteboard-page-container {
-    flex-direction: column; /* Stack whiteboard and chat vertically */
+    flex-direction: column;
     padding: 15px;
     gap: 20px;
     min-height: auto;
   }
 
   .whiteboard-main-content {
-    max-width: 100%; /* Take full width */
+    max-width: 100%;
     margin-right: 0;
   }
 
+  .tool-palette {
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 15px;
+  }
+
+  .tool-button, .color-picker,
+  .stroke-width-slider, .stroke-width-display {
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  .stroke-width-slider {
+    width: 80px;
+  }
+
   .whiteboard-canvas-container {
-    height: 500px; /* Fixed height for canvas on smaller screens */
+    height: 500px;
     width: 100%;
+    height: calc(100vh - 200px - 80px); /* Adjusted canvas height for tool palette */
   }
 
   .chat-sidebar {
-    width: 100%; /* Chat takes full width */
+    width: 100%;
     height: auto;
     max-height: 400px;
     min-height: 200px;
   }
 }
 
-/* For Mobile devices (e.g., max-width 768px) */
 @media (max-width: 768px) {
   .whiteboard-page-container {
     padding: 10px;
@@ -217,19 +352,50 @@
     padding: 8px 10px;
   }
 
+  .tool-palette {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .tool-button {
+    padding: 6px 10px;
+    font-size: 0.9em;
+    min-width: unset; /* Allow shrinking on very small screens */
+  }
+
+  .color-picker {
+    width: 35px;
+    height: 35px;
+  }
+
+  .stroke-width-slider {
+    width: 60px;
+  }
+
+  .stroke-width-display {
+    font-size: 0.8em;
+  }
+
+  .whiteboard-canvas-container {
+    height: calc(100vh - 200px - 80px);
+    min-height: 300px;
+  }
+
   .chat-sidebar h2 {
     font-size: 1.4em;
     margin-bottom: 10px;
   }
 
   .chat-input-group {
-    flex-direction: column; /* Ensure stacking on mobile */
+    flex-direction: column;
     gap: 10px;
   }
 
   .chat-input, .send-button {
-    width: 100%; /* Both take full width when stacked */
-    /* Remove min-width and flex-shrink here as they are handled by 100% width */
+    width: 100%;
   }
 
   .chat-messages {
