@@ -8,60 +8,118 @@
   min-height: 100vh;
   padding: 20px;
   box-sizing: border-box;
+  background-color: var(--background-color); /* Use global background */
 }
 
-.lobby-container h1 {
-  font-size: 2.8em;
-  margin-bottom: 40px;
+.lobby-card {
+  background-color: var(--card-background);
+  padding: 40px; /* More generous padding */
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-medium); /* Use new, softer shadow */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px; /* Slightly wider card */
+  text-align: center;
+}
+
+.lobby-card h1 {
+  font-size: 2.5em; /* Slightly smaller for a modern feel */
+  margin-bottom: 10px; /* Reduced margin */
   color: var(--primary-color);
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+  font-weight: 700;
+  text-shadow: none; /* Remove text shadow for cleaner look */
+}
+
+.lobby-card .sub-heading {
+  font-size: 1.1em;
+  color: var(--secondary-color);
+  margin-bottom: 30px; /* More space before input */
 }
 
 .room-input-group {
-  background-color: var(--card-background);
-  padding: 30px;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-medium);
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  align-items: center;
+  gap: 15px; /* Spacing between input and button */
   width: 100%;
-  max-width: 400px; /* Limit width on larger screens */
 }
 
 .room-input {
-  width: 100%; /* Fill parent width */
+  width: 100%;
   font-size: 1.1em;
+  padding: 12px 18px; /* Slightly larger input padding */
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.room-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2); /* Softer focus shadow */
 }
 
 .join-button {
   background-color: var(--primary-color);
   color: white;
-  width: 100%; /* Fill parent width */
+  width: 100%;
+  padding: 12px 20px; /* Slightly larger button padding */
   font-size: 1.1em;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-light); /* Apply light shadow for buttons */
 }
 
 .join-button:hover {
   background-color: var(--primary-hover-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium); /* More pronounced shadow on hover */
 }
 
 .hint-text {
   font-size: 0.9em;
   color: var(--secondary-color);
-  margin-top: 25px;
+  margin-top: 30px; /* More space after button */
+  line-height: 1.5;
 }
 
 /* Responsive adjustments for Lobby */
-@media (max-width: 480px) {
-  .lobby-container h1 {
-    font-size: 2em;
-    margin-bottom: 25px;
+@media (max-width: 600px) {
+  .lobby-container {
+    padding: 15px;
   }
-  .room-input-group {
-    padding: 20px;
+  .lobby-card {
+    padding: 30px;
+  }
+  .lobby-card h1 {
+    font-size: 2em;
+  }
+  .lobby-card .sub-heading {
+    font-size: 1em;
+    margin-bottom: 25px;
   }
   .room-input, .join-button {
     font-size: 1em;
+    padding: 10px 15px;
+  }
+  .hint-text {
+    margin-top: 25px;
+    font-size: 0.85em;
+  }
+}
+
+@media (max-width: 400px) {
+  .lobby-card {
+    padding: 20px;
+  }
+  .lobby-card h1 {
+    font-size: 1.8em;
+  }
+  .lobby-card .sub-heading {
+    font-size: 0.9em;
+    margin-bottom: 20px;
+  }
+  .room-input, .join-button {
+    font-size: 0.9em;
+    padding: 8px 12px;
   }
 }

@@ -10,11 +10,15 @@
   --danger-color: #dc3545; /* Red */
   --danger-hover-color: #c82333;
   --text-color: #343a40;
-  --background-color: #f8f9fa;
+  --background-color: #f0f2f5; /* Slightly lighter, more modern background */
   --card-background: #ffffff;
   --border-color: #e9ecef;
-  --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-medium: 0 6px 16px rgba(0, 0, 0, 0.12);
+
+  /* Softer shadows for a modern, less heavy look */
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05); /* Lighter, less spread */
+  --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.08); /* Medium, still soft */
+  --shadow-strong: 0 8px 25px rgba(0, 0, 0, 0.12); /* For more prominent elements */
+
   --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
@@ -48,11 +52,11 @@ p {
 /* Base button styles */
 button {
   padding: 10px 20px;
-  border: none;
+  border: none; /* Will be overridden by specific button styles */
   border-radius: var(--border-radius-md);
   font-size: 1em;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 

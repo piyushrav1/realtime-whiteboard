@@ -1,5 +1,11 @@
 /* whiteboard-frontend/src/components/WhiteboardRoom.css */
 
+/*
+   Assuming :root variables and basic element styles (body, h1, p, button, input)
+   are defined in App.css and are globally available.
+*/
+
+/* Main layout containers */
 .whiteboard-page-container {
   display: flex;
   flex-direction: row;
@@ -16,10 +22,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: calc(100% - 280px - 25px);
+  max-width: calc(100% - 280px - 25px); /* Adjusted for chat sidebar width */
   min-width: 320px;
 }
 
+/* Header styles */
 .header {
   display: flex;
   justify-content: space-between;
@@ -48,110 +55,200 @@
   color: white;
   padding: 8px 18px;
   font-size: 0.95em;
-  box-shadow: none;
+  box-shadow: none; /* Override general button shadow */
+  border-radius: var(--border-radius-md); /* Apply specific border-radius */
 }
 
 .leave-button:hover {
   background-color: var(--danger-hover-color);
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* Specific hover shadow */
 }
 
-/* Tool Palette Styles */
+
+/* --- PROFESSIONAL TOOL PALETTE STYLES --- */
 .tool-palette {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  justify-content: center; /* Center tools horizontally */
   align-items: center;
-  gap: 15px;
+  gap: 15px; /* Spacing between groups */
   width: 100%;
-  padding: 15px 25px;
+  padding: 15px 20px; /* Slightly less padding to feel more compact */
   margin-bottom: 20px;
   background-color: var(--card-background);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-light);
+  box-shadow: var(--shadow-medium); /* A slightly more pronounced shadow */
   box-sizing: border-box;
 }
 
-.tool-button {
-  background-color: var(--secondary-color);
-  color: white;
-  padding: 8px 15px;
-  font-size: 1em;
+/* Tool Groups */
+.tool-group {
+  display: flex;
+  gap: 10px; /* Spacing between items within a group */
+  flex-wrap: wrap; /* Allow buttons within group to wrap */
+  align-items: center;
+  background-color: var(--background-color); /* Lighter background for grouping */
+  padding: 8px 12px;
   border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color); /* Subtle border for groups */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Very light inner shadow */
+}
+
+.tool-group-main, /* For Select tool, no distinct background */
+.tool-group-actions { /* For clear/close, no distinct background */
+  background-color: transparent;
+  border: none;
   box-shadow: none;
-  min-width: 80px;
+  padding: 0;
+}
+
+.tool-group-properties {
+  padding: 8px 15px; /* Slightly more padding for property controls */
+  background-color: var(--background-color); /* Use general background */
+  border: 1px solid var(--border-color);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Tool Buttons */
+.tool-button {
+  display: flex; /* Allow icon and text to sit side-by-side */
+  align-items: center;
+  justify-content: center;
+  background-color: transparent; /* Transparent background by default */
+  color: var(--text-color); /* Use general text color */
+  border: 1px solid var(--border-color); /* Subtle border */
+  padding: 8px 12px; /* Adjusted padding */
+  font-size: 0.95em; /* Slightly smaller font */
+  border-radius: var(--border-radius-sm); /* Slightly sharper corners */
+  box-shadow: none; /* Remove default button shadow */
+  min-width: 80px; /* Consistent minimum width */
   text-align: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease; /* Faster transform for click feel */
+}
+
+/* Icon Styling (placeholder for actual SVGs/Font Awesome) */
+.tool-button .icon {
+  font-family: 'Segoe UI Symbol', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI', sans-serif; /* Ensures emoji/symbols render well */
+  display: inline-block;
+  width: 1.2em; /* Adjust to match desired icon size */
+  height: 1.2em; /* Adjust to match desired icon size */
+  line-height: 1; /* Align vertically */
+  text-align: center;
+  margin-right: 6px; /* Space between icon and text */
+  flex-shrink: 0;
+  /* If using SVG icons, you'd insert them directly or use a background image */
+  /* For example, for a Font Awesome icon: <i class="fas fa-pencil-alt"></i> */
+}
+/* Text part of the button */
+.tool-button .button-text {
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+
+.tool-button:hover {
+  background-color: var(--background-color); /* Light background on hover */
+  border-color: var(--primary-color); /* Primary border on hover */
+  transform: translateY(-1px); /* Keep subtle lift */
+  box-shadow: var(--shadow-light); /* Light shadow on hover */
 }
 
 .tool-button.active {
-  background-color: var(--primary-color);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background-color: var(--primary-color); /* Solid primary background for active */
+  color: white; /* White text for active */
+  border-color: var(--primary-color); /* Solid border matching active background */
+  transform: translateY(0); /* No lift when active */
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); /* Inset shadow for "pressed" look */
 }
 
-.tool-button:hover {
-  background-color: var(--primary-hover-color);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+/* Specific active icon color if using SVG */
+.tool-button.active .icon {
+  /* If using SVG icons, you might need to target fill/stroke here */
+  /* E.g., fill: white; stroke: white; */
 }
 
-/* NEW: Style for the "Close Room" button to make it red */
+
 .tool-button.danger-button {
   background-color: var(--danger-color);
+  color: white;
+  border-color: var(--danger-color); /* Match border to background */
 }
 
 .tool-button.danger-button:hover {
   background-color: var(--danger-hover-color);
+  border-color: var(--danger-hover-color);
 }
-
 
 .tool-separator {
   width: 1px;
-  height: 30px;
+  height: 35px; /* Slightly taller separator */
   background-color: var(--border-color);
-  margin: 0 5px;
+  margin: 0 10px; /* More margin for clearer separation */
   flex-shrink: 0;
+}
+
+
+/* Input Controls within Palette */
+.tool-property-item {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Spacing between label and control */
+}
+
+.tool-label {
+  font-size: 0.85em; /* Slightly smaller for labels */
+  color: var(--text-color);
+  white-space: nowrap;
 }
 
 .color-picker {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  width: 40px;
-  height: 40px;
+  width: 32px; /* Slightly smaller for compactness */
+  height: 32px;
   background-color: transparent;
-  border: none;
+  border: 1px solid var(--border-color); /* Border even when not focused */
   cursor: pointer;
   padding: 0;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm); /* Match button border-radius */
   overflow: hidden;
   flex-shrink: 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .color-picker::-webkit-color-swatch-wrapper {
   padding: 0;
 }
 .color-picker::-webkit-color-swatch {
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
+  border: none; /* Remove inner border */
+  border-radius: var(--border-radius-sm); /* Match outer border-radius */
 }
 .color-picker::-moz-color-swatch,
 .color-picker::-moz-color-swatch-wrapper {
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
+  border: none;
+  border-radius: var(--border-radius-sm);
+}
+.color-picker:hover {
+  border-color: var(--primary-color);
+}
+.color-picker:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); /* Smaller focus ring */
 }
 
+
 .stroke-width-slider {
-  width: 120px;
+  width: 90px; /* More compact slider */
   -webkit-appearance: none;
   appearance: none;
-  height: 8px;
+  height: 6px; /* Thinner track */
   background: var(--border-color);
   outline: none;
-  opacity: 0.7;
+  opacity: 0.9; /* Slightly less transparent by default */
   transition: opacity .2s;
-  border-radius: 4px;
+  border-radius: 3px; /* Match track border-radius */
   flex-shrink: 0;
 }
 
@@ -162,45 +259,98 @@
 .stroke-width-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 16px; /* Smaller thumb */
+  height: 16px;
   border-radius: 50%;
   background: var(--primary-color);
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  cursor: grab; /* More indicative cursor */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Subtle thumb shadow */
 }
 
 .stroke-width-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--primary-color);
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  cursor: grab;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .stroke-width-display {
-  font-size: 0.9em;
+  font-size: 0.85em;
   color: var(--text-color);
-  min-width: 40px;
+  min-width: 35px; /* Adjust min-width */
   text-align: center;
   flex-shrink: 0;
 }
 
-/* Canvas container */
-.whiteboard-canvas-container {
-  width: 100%;
-  height: calc(100vh - 200px - 100px);
-  background-color: var(--card-background);
+.tool-select {
+  padding: 7px 8px; /* Adjusted padding */
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-medium);
-  overflow: hidden;
+  border-radius: var(--border-radius-sm); /* Match button border-radius */
+  font-size: 0.85em; /* Slightly smaller font */
+  background-color: var(--background-color);
+  color: var(--text-color);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+  -webkit-appearance: none; /* Remove default arrow on select */
+  -moz-appearance: none;
+  appearance: none;
+  /* Custom arrow for select dropdown */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23343a40" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
 }
 
-/* Konva Stage styles (no changes needed) */
-.konvajs-content {
+.tool-select:hover {
+  border-color: var(--primary-color);
+}
+
+.tool-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+
+/* --- CRUCIAL TOUCHSCREEN FIXES (REINFORCED) --- */
+.whiteboard-canvas-container {
+  width: 100%;
+  height: calc(100vh - 200px); /* Adjust this height as needed based on your layout */
+  background-color: white;
   border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-medium);
+
+  touch-action: none !important; /* Force disable all browser touch actions */
+  -ms-touch-action: none !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+
+.konvajs-content,
+.konvajs-content canvas {
+  touch-action: none !important;
+  -ms-touch-action: none !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  border-radius: var(--border-radius-lg);
+}
+
+
+/* --- Textarea for in-place text editing (frontend component) --- */
+textarea {
+  box-sizing: border-box; /* Crucial for width/height calculations */
+  border: 1px solid var(--primary-color); /* Visually highlight editing */
+  background-color: white; /* Ensure it has a background */
+  font-family: inherit; /* Inherit font from global styles */
+  outline: none; /* Remove default focus outline */
+  resize: none; /* Prevent user manual resizing */
+  padding: 0; /* Konva Text padding is applied via style, not CSS padding */
+}
+textarea:focus {
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 
@@ -210,7 +360,7 @@
   font-size: 0.9em;
 }
 
-/* Chat Sidebar Styles (unchanged for now) */
+/* Chat Sidebar Styles */
 .chat-sidebar {
   width: 280px;
   min-width: 280px;
@@ -307,26 +457,71 @@
   }
 
   .tool-palette {
-    flex-direction: row;
+    flex-direction: row; /* Keep as row, but allow wrapping */
     justify-content: center;
     gap: 10px;
     padding: 10px 15px;
   }
 
-  .tool-button, .color-picker,
-  .stroke-width-slider, .stroke-width-display {
-    flex-shrink: 0;
-    margin: 0;
+  .tool-group {
+    padding: 6px 10px; /* Smaller padding for groups */
+    gap: 8px; /* Smaller gap in groups */
+  }
+
+  .tool-group-properties {
+    padding: 6px 10px;
+  }
+
+  .tool-button {
+    padding: 6px 10px; /* Smaller button padding */
+    font-size: 0.9em; /* Smaller font */
+    min-width: unset; /* Allow buttons to shrink more */
+  }
+
+  .tool-button .icon {
+    width: 1em; /* Adjust icon size down slightly */
+    height: 1em;
+    font-size: 1.1em; /* Make the actual symbol slightly bigger */
+    margin-right: 4px;
+  }
+  .tool-button .button-text {
+    display: none; /* Hide text to save space, rely on icons/tooltips */
+  }
+  .tool-button {
+    min-width: 45px; /* Adjust button min-width for icon-only */
+    padding: 8px; /* Equal padding for square-ish buttons */
+  }
+
+
+  .tool-separator {
+    height: 30px;
+    margin: 0 8px;
+  }
+
+  .color-picker {
+    width: 28px;
+    height: 28px;
   }
 
   .stroke-width-slider {
-    width: 80px;
+    width: 70px; /* Shorter slider */
   }
 
+  .stroke-width-display,
+  .tool-label,
+  .tool-select {
+    font-size: 0.8em; /* Smaller font for properties */
+  }
+
+  .tool-select {
+    padding: 5px 8px; /* Adjusted padding */
+    background-size: 14px; /* Smaller custom arrow */
+  }
+
+  /* Re-adjust canvas height */
   .whiteboard-canvas-container {
-    height: 500px;
+    height: 500px; /* Fixed height on smaller screens still fine */
     width: 100%;
-    height: calc(100vh - 200px - 80px);
   }
 
   .chat-sidebar {
@@ -362,30 +557,53 @@
   }
 
   .tool-palette {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    padding: 10px;
+    padding: 8px;
     gap: 8px;
   }
 
+  .tool-group {
+    padding: 5px 8px;
+    gap: 6px;
+  }
+
   .tool-button {
-    padding: 6px 10px;
-    font-size: 0.9em;
-    min-width: unset;
+    padding: 5px 8px;
+    font-size: 0.85em;
+    min-width: 40px; /* Even smaller for very small screens */
+  }
+  .tool-button .icon {
+    font-size: 1em;
+  }
+
+  .tool-separator {
+    height: 25px;
+    margin: 0 6px;
   }
 
   .color-picker {
-    width: 35px;
-    height: 35px;
+    width: 24px;
+    height: 24px;
   }
 
   .stroke-width-slider {
-    width: 60px;
+    width: 50px;
+    height: 5px;
   }
 
-  .stroke-width-display {
-    font-size: 0.8em;
+  .stroke-width-slider::-webkit-slider-thumb,
+  .stroke-width-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+  }
+
+  .stroke-width-display,
+  .tool-label,
+  .tool-select {
+    font-size: 0.75em;
+  }
+
+  .tool-select {
+    padding: 4px 6px;
   }
 
   .whiteboard-canvas-container {

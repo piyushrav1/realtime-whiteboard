@@ -1,13 +1,16 @@
 // whiteboard-backend/index.js
 
-require('dotenv').config();
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const cors = require('cors');
+import dotenv from 'dotenv';
+dotenv.config();
 
-const connectDB = require('./db');
-const WhiteboardRoom = require('./models/WhiteboardRoom');
+import express from 'express';
+import http from 'http';
+import { Server as SocketIoServer } from 'socket.io';
+import cors from 'cors';
+// REMOVED: import twilio from 'twilio';
+
+import connectDB from './db.js';
+import WhiteboardRoom from './models/WhiteboardRoom.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -22,7 +25,7 @@ app.use(cors({
   methods: ["GET", "POST"]
 }));
 
-const io = socketIo(server, {
+const io = new SocketIoServer(server, {
   cors: {
     origin: FE_ALLOWED_ORIGINS,
     methods: ["GET", "POST"]
@@ -118,8 +121,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // --- Drawing Event Handlers ---
-
+  // --- Drawing Event Handlers (Unchanged) ---
   socket.on('startDrawing', async (data) => {
     const { roomName, object } = data;
     try {
@@ -133,23 +135,16 @@ io.on('connection', (socket) => {
     }
   });
 
-  // FIXED: 'drawing' event to use atomic update ($push with $each)
   socket.on('drawing', async (data) => {
-    const { roomName, objectId, newPoints } = data; // newPoints is an array like [x1,y1,x2,y2]
+    const { roomName, objectId, newPoints } = data;
     try {
-      // Use $push with $each to atomically append new points to the specific line's points array
-      // The $ positional operator updates the first element matching the arrayFilters condition
       const result = await WhiteboardRoom.updateOne(
         { room_name: roomName, "whiteboard_state.id": objectId, "whiteboard_state.type": "line" },
         { $push: { "whiteboard_state.$.points": { $each: newPoints } } }
       );
-
-      // Check if the update was successful
       if (result.matchedCount === 0) {
         console.warn(`[Drawing] Could not find line object "${objectId}" in room "${roomName}" to update.`);
       }
-
-      // Broadcast the update to other clients
       socket.broadcast.to(roomName).emit('drawing', { objectId, newPoints });
     } catch (error) {
       console.error(`MongoDB error during drawing for room ${roomName}:`, error);
@@ -159,36 +154,33 @@ io.on('connection', (socket) => {
   socket.on('endDrawing', async (data) => {
     const { roomName, objectId, finalObjectState } = data;
     try {
-      await WhiteboardRoom.updateOne(
+      const result = await WhiteboardRoom.updateOne(
         { room_name: roomName, "whiteboard_state.id": objectId },
         { $set: { "whiteboard_state.$": finalObjectState } }
       );
+      if (result.matchedCount === 0) {
+        console.warn(`[EndDrawing] Could not find object "${objectId}" in room "${roomName}" to finalize.`);
+      }
       socket.broadcast.to(roomName).emit('drawingFinished', { objectId, finalObjectState });
     } catch (error) {
       console.error(`MongoDB error ending drawing for room ${roomName}:`, error);
     }
   });
 
-  // FIXED: 'updateObject' event to use atomic update ($set)
   socket.on('updateObject', async (data) => {
     const { roomName, objectId, newAttributes } = data;
     try {
-      // Construct the update object for $set, specifically targeting the array element
       const updateSet = {};
       for (const key in newAttributes) {
-        // We need to form a path like "whiteboard_state.$.x", "whiteboard_state.$.width", etc.
         updateSet[`whiteboard_state.$.${key}`] = newAttributes[key];
       }
-
       const result = await WhiteboardRoom.updateOne(
-        { room_name: roomName, "whiteboard_state.id": objectId }, // Match the room and the specific object in the array
+        { room_name: roomName, "whiteboard_state.id": objectId },
         { $set: updateSet }
       );
-
       if (result.matchedCount === 0) {
-        console.warn(`[Update] Could not find object "${objectId}" in room "${roomName}" to update.`);
+        console.warn(`[UpdateObject] Could not find object "${objectId}" in room "${roomName}" to update attributes.`);
       }
-
       socket.broadcast.to(roomName).emit('objectUpdated', { objectId, newAttributes });
     } catch (error) {
       console.error(`MongoDB error updating object for room ${roomName}:`, error);
@@ -222,10 +214,8 @@ io.on('connection', (socket) => {
           }
         }
       }
-
       await WhiteboardRoom.deleteOne({ room_name: roomName });
       console.log(`[DB] Room "${roomName}" and its data manually deleted.`);
-
       cancelRoomDestructionTimer(roomName);
     } catch (error) {
       console.error(`[DB Error] Failed to manually close room "${roomName}":`, error);
@@ -251,6 +241,13 @@ io.on('connection', (socket) => {
       console.error(`MongoDB error sending chat message for room ${roomName}:`, error);
     }
   });
+
+  // REMOVED: getTwilioToken event handler
+  /*
+  socket.on('getTwilioToken', async (data, callback) => {
+    // ... Twilio token generation logic ...
+  });
+  */
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);

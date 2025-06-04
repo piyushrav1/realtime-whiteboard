@@ -1,30 +1,35 @@
 // whiteboard-backend/models/WhiteboardRoom.js
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose'; // Change require to import
 
-// UPDATED: Define a generic schema for any drawing object
+// Define a generic schema for any drawing object
 const DrawingObjectSchema = new mongoose.Schema({
   id: { type: String, required: true },
-  type: { type: String, required: true, enum: ['line', 'rect', 'circle', 'text'] }, // NEW: Type of drawing object
-  x: { type: Number }, // For shapes, text, images
-  y: { type: Number }, // For shapes, text, images
-  width: { type: Number }, // For rect, text
-  height: { type: Number }, // For rect, text
-  radius: { type: Number }, // For circle
-  rotation: { type: Number, default: 0 }, // For all rotatable objects
-  text: { type: String }, // For text objects
-  fontSize: { type: Number }, // For text objects
-  fontFamily: { type: String }, // For text objects
-  align: { type: String }, // For text objects
+  type: { type: String, required: true, enum: ['line', 'rect', 'circle', 'text'] },
+  x: { type: Number },
+  y: { type: Number },
+  width: { type: Number },
+  height: { type: Number },
+  radius: { type: Number },
+  rotation: { type: Number, default: 0 },
+  text: { type: String },
+  fontSize: { type: Number },
+  fontFamily: { type: String },
+  align: { type: String },
 
-  points: { type: [Number] }, // Only for 'line' type
-  stroke: { type: String, default: 'black' }, // For line, rect, circle, text
-  strokeWidth: { type: Number, default: 5 }, // For line, rect, circle
-  fill: { type: String, default: 'transparent' }, // For rect, circle
-  // Add more properties as needed for other tools (e.g., opacity, dash, image source)
+  points: { type: [Number] },
+  stroke: { type: String, default: 'black' },
+  strokeWidth: { type: Number, default: 5 },
+  fill: { type: String, default: 'transparent' },
+
+  // --- NEW BRUSH PROPERTIES ---
+  opacity: { type: Number, default: 1.0 }, // New: 0.0 to 1.0 for transparency
+  lineCap: { type: String, enum: ['butt', 'round', 'square'], default: 'round' }, // New: Line cap style
+  dash: { type: [Number], default: [] }, // New: Dash pattern for dashed lines [segment, gap]
+  tool: { type: String } // Existing: Kept for eraser's composite operation
 }, { _id: false });
 
-// ChatMessageSchema (unchanged)
+// Define a schema for a single chat message
 const ChatMessageSchema = new mongoose.Schema({
   userId: { type: String, required: true },
   username: { type: String, default: 'Guest' },
@@ -32,7 +37,7 @@ const ChatMessageSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 }, { _id: false });
 
-// WhiteboardRoomSchema (updated to use DrawingObjectSchema)
+// Define the main WhiteboardRoom schema
 const WhiteboardRoomSchema = new mongoose.Schema({
   room_name: {
     type: String,
@@ -41,26 +46,16 @@ const WhiteboardRoomSchema = new mongoose.Schema({
     trim: true,
   },
   whiteboard_state: {
-    type: [DrawingObjectSchema], // UPDATED: Array of generic drawing objects
+    type: [DrawingObjectSchema],
     default: [],
   },
   chat_messages: {
     type: [ChatMessageSchema],
     default: [],
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  // Using Mongoose's built-in timestamps for cleaner code
+}, { timestamps: true }); // Adds createdAt and updatedAt fields automatically
 
-WhiteboardRoomSchema.pre('save', function (next) {
-  this.updatedAt = Date.now();
-  next();
-});
+// The pre('save') hook for updatedAt is not needed if 'timestamps: true' is used
 
-module.exports = mongoose.model('WhiteboardRoom', WhiteboardRoomSchema);
+export default mongoose.model('WhiteboardRoom', WhiteboardRoomSchema);

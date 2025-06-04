@@ -1,20 +1,17 @@
-// whiteboard-backend/db.js
-
-const mongoose = require('mongoose');
+import mongoose from 'mongoose'; // Change require to import
 
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      // useCreateIndex: true, // Deprecated in Mongoose 6+
-      // useFindAndModify: false // Deprecated in Mongoose 6+
+      // These options are deprecated in Mongoose 6+ and have no effect
+      // useNewUrlParser: true,
+      // useUnifiedTopology: true,
     });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`Error: ${error.message}`);
-    process.exit(1); // Exit process with failure
+    process.exit(1);
   }
 };
 
-module.exports = connectDB;
+export default connectDB; // Change module.exports to export default
